@@ -1,0 +1,42 @@
+name: Deploy AWS Lambda
+
+# Define em quais eventos o workflow será acionado
+on:
+  push:
+    branches:
+      - main  # Executa no push para a branch main
+  pull_request:  # Opcional: executa também em pull requests para a main
+    branches:
+      - main
+
+# Define os jobs do workflow
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # O ambiente para executar os jobs
+
+    steps:
+      # 1. Fazer o checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Configurar credenciais AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # 3. Instalar dependências Python
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt -t package/
+          cd package
+          zip -r ../lambda_package.zip .
+
+      # 4. Fazer o deploy para a Lambda
+      - name: Deploy Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name inferLLM \
+            --zip-file fileb://lambda_package.zip
