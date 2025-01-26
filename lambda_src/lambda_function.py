@@ -1,6 +1,6 @@
 import json
 import boto3
-#teste 123456
+#teste 12
 bedrock = boto3.client(
     service_name='bedrock',
     region_name='us-east-1'
