@@ -32,6 +32,8 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt -t package/
+            cd package
+            zip -r ../lambda_package.zip .
           fi
 
       # 4. Fazer o deploy para a Lambda
