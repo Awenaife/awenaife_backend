@@ -16,7 +16,7 @@ s3 = boto3.client('s3')
 def lambda_handler(event, context):
     bucket_name = 'awenaife-llm-infer-prompt'
     file_key = 'prompt.txt'
-
+    print('Event-----> ', event)
     try:
         s3_response = s3.get_object(Bucket=bucket_name, Key=file_key)
         file_content = s3_response['Body'].read().decode('utf-8')
