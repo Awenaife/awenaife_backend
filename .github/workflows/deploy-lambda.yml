@@ -29,12 +29,7 @@ jobs:
 
       # 3. Instalar dependências Python
       - name: Install Python dependencies
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt -t package/
-            cd package
-            zip -r ../lambda_package.zip .
-          fi
+        run: echo "No dependencies to install"
 
       # 4. Fazer o deploy para a Lambda
       - name: Deploy Lambda Function
