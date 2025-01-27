@@ -28,9 +28,9 @@ jobs:
       - name: Package ${{ matrix.lambda.name }}
         run: |
           mkdir package
-          cp -r ${{ matrix.lambda.source_path }}/* package/
+          cp -r ${{ matrix.lambda.source_path }}/* package/  # Copy Lambda-specific files
           cd package
-          zip -r ${{ matrix.lambda.name }}.zip .
+          zip -r ../${{ matrix.lambda.name }}.zip .  # Package into a zip file
         shell: bash
 
       # Step 3: Deploy the Lambda function
