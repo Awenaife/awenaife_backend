@@ -16,7 +16,7 @@ jobs:
       matrix:
         lambda:
           - name: inferLLM
-            function_name: YourLambdaOneFunctionName
+            function_name: inferLLM
             source_path: lambda_src/inferLLM/
 
     steps:
