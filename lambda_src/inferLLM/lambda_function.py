@@ -1,6 +1,6 @@
 import json
 import boto3
-#teste 1
+
 bedrock = boto3.client(
     service_name='bedrock',
     region_name='us-east-1'
@@ -11,21 +11,47 @@ bedrock_runtime = boto3.client(
     region_name='us-east-1'
 )
 
+s3 = boto3.client('s3')
+
 def lambda_handler(event, context):
-    input_value = event.get('input', '')
-    body = "{\"inputText\":\"" + input_value + "\",\"textGenerationConfig\":{\"maxTokenCount\":8192,\"stopSequences\":[],\"temperature\":0,\"topP\":1}}"
+    bucket_name = 'awenaife-llm-infer-prompt'
+    file_key = 'prompt.txt'
 
-    response = bedrock_runtime.invoke_model(
-        body=body,
-        modelId='amazon.titan-text-express-v1',
-        accept='application/json',
-        contentType='application/json'
-    )
+    try:
+        s3_response = s3.get_object(Bucket=bucket_name, Key=file_key)
+        prompt = s3_response['Body'].read().decode('utf-8')
 
-    response_body = json.loads(response.get('body').read())
+        input_value = event.get('input', '')
+        input_text = prompt + input_value
+        #body = "{\"inputText\":\"" + input_text + "\",\"textGenerationConfig\":{\"maxTokenCount\":8192,\"stopSequences\":[],\"temperature\":0,\"topP\":1}}"
 
-    print(response_body)
-    return {
-        'statusCode': 200,
-        'body': json.dumps({"Answer": response_body})
-    }
+        body = json.dumps({
+            "inputText": input_text,
+            "textGenerationConfig": {
+                "maxTokenCount": 8192,
+                "stopSequences": [],
+                "temperature": 0,
+                "topP": 1
+            }
+        })
+
+
+        response = bedrock_runtime.invoke_model(
+            body=body,
+            modelId='amazon.titan-text-express-v1',
+            accept='application/json',
+            contentType='application/json'
+        )
+
+        response_body = json.loads(response.get('body').read())
+
+        return {
+            'statusCode': 200,
+            'body': json.dumps({"Answer": response_body})
+        }
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({"Error": str(e)})
+        }
