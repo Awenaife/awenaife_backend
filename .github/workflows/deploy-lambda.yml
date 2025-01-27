@@ -1,39 +1,45 @@
-name: Deploy AWS Lambda
+name: Deploy Multiple AWS Lambdas
 
-# Define em quais eventos o workflow será acionado
 on:
   push:
     branches:
-      - main  # Executa no push para a branch main
-  pull_request:  # Opcional: executa também em pull requests para a main
+      - main 
+  pull_request:
     branches:
       - main
 
-# Define os jobs do workflow
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # O ambiente para executar os jobs
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        lambda:
+          - name: inferLLM
+            function_name: YourLambdaOneFunctionName
+            source_path: lambda_src/inferLLM/
 
     steps:
-      # 1. Fazer o checkout do código
+      # Step 1: Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Configurar credenciais AWS
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+      # Step 2: Package the specific Lambda
+      - name: Package ${{ matrix.lambda.name }}
+        run: |
+          mkdir package
+          cp -r ${{ matrix.lambda.source_path }}/* package/
+          cd package
+          zip -r ${{ matrix.lambda.name }}.zip .
+        shell: bash
 
-      # 3. Instalar dependências Python
-      - name: Install Python dependencies
-        run:  zip -r lambda_package.zip .
-
-      # 4. Fazer o deploy para a Lambda
-      - name: Deploy Lambda Function
+      # Step 3: Deploy the Lambda function
+      - name: Deploy ${{ matrix.lambda.name }}
         run: |
           aws lambda update-function-code \
-            --function-name inferLLM \
-            --zip-file fileb://lambda_package.zip
+            --function-name ${{ matrix.lambda.function_name }} \
+            --zip-file fileb://${{ matrix.lambda.name }}.zip
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
