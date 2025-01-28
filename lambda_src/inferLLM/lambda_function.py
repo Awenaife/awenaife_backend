@@ -14,7 +14,7 @@ bedrock_runtime = boto3.client(
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    bucket_name = 'awenaife-llm-infer-prompt'
+    bucket_name = 'awenaife-llm-config'
     file_key = 'prompt.txt'
 
     try:
@@ -24,10 +24,6 @@ def lambda_handler(event, context):
 
         parsed_body = json.loads(event['body'])
         input_value = parsed_body['input']
-
-        print('parsed_body ---------> ', parsed_body)
-        print('input_value ---------> ', input_value)
-
         input_text = prompt + input_value
         #body = "{\"inputText\":\"" + input_text + "\",\"textGenerationConfig\":{\"maxTokenCount\":8192,\"stopSequences\":[],\"temperature\":0,\"topP\":1}}"
         
