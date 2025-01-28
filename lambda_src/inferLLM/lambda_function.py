@@ -25,9 +25,9 @@ def lambda_handler(event, context):
         parsed_body = json.loads(event['body'])
         input_value = parsed_body['input']
 
-        teste = event['body']['input']
-        print('event ---------> ', teste)
-        
+        print('parsed_body ---------> ', parsed_body)
+        print('input_value ---------> ', input_value)
+
         input_text = prompt + input_value
         #body = "{\"inputText\":\"" + input_text + "\",\"textGenerationConfig\":{\"maxTokenCount\":8192,\"stopSequences\":[],\"temperature\":0,\"topP\":1}}"
         
