@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         s3_response = s3.get_object(Bucket=bucket_name, Key=file_key)
         prompt = s3_response['Body'].read().decode('utf-8')
         
-        input_value = event.get('input', '')
+        input_value = event['input']
         input_text = prompt + input_value
         #body = "{\"inputText\":\"" + input_text + "\",\"textGenerationConfig\":{\"maxTokenCount\":8192,\"stopSequences\":[],\"temperature\":0,\"topP\":1}}"
         
