@@ -15,37 +15,42 @@ s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
     bucket_name = 'awenaife-llm-config'
-    file_key = 'prompt.txt'
+    prompt_file_key = 'prompt.txt'
+    config_file_key = 'config.json'
 
     try:
-        s3_response = s3.get_object(Bucket=bucket_name, Key=file_key)
-        prompt = s3_response['Body'].read().decode('utf-8')
-        
+        s3_response_p = s3.get_object(Bucket=bucket_name, Key=prompt_file_key)
+        prompt = s3_response_p['Body'].read().decode('utf-8')
+        s3_response_c = s3.get_object(Bucket=bucket_name, Key=config_file_key)
+        config = s3_response_c['Body'].read().decode('utf-8')
+        config_dict = json.loads(config)
+        model_id = config_dict["modelId"]
+        max_token_count = config_dict["maxTokenCount"]
+        stop_sequences = config_dict["stopSequences"]
+        temperature = config_dict["temperature"]
+        top_p = config_dict["topP"]
+        accept = config_dict["accept"]
+        content_type = config_dict["contentType"]
 
         parsed_body = json.loads(event['body'])
         input_value = parsed_body['input']
         input_text = prompt + input_value
-        #body = "{\"inputText\":\"" + input_text + "\",\"textGenerationConfig\":{\"maxTokenCount\":8192,\"stopSequences\":[],\"temperature\":0,\"topP\":1}}"
-        
-        print('Prompt S3 ---------> ', prompt)
-        print('input_value ---------> ', input_value)
 
         body = json.dumps({
             "inputText": input_text,
             "textGenerationConfig": {
-                "maxTokenCount": 8192,
-                "stopSequences": [],
-                "temperature": 0,
-                "topP": 1
+                "maxTokenCount": max_token_count,
+                "stopSequences": stop_sequences,
+                "temperature": temperature,
+                "topP": top_p
             }
         })
 
-
         response = bedrock_runtime.invoke_model(
             body=body,
-            modelId='amazon.titan-text-express-v1',
-            accept='application/json',
-            contentType='application/json'
+            modelId=model_id,
+            accept=accept,
+            contentType=content_type
         )
 
         response_body = json.loads(response.get('body').read())

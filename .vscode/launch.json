@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Lambda Local",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/lambda_src/inferLLM/local_test.py",
+            "console": "integratedTerminal",
+            "python": "${workspaceFolder}/venv/bin/python"
+        }
+    ]
+}
