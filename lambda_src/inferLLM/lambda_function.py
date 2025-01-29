@@ -1,5 +1,6 @@
 import json
 import boto3
+import os
 
 bedrock = boto3.client(
     service_name='bedrock',
@@ -14,9 +15,9 @@ bedrock_runtime = boto3.client(
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    bucket_name = 'awenaife-llm-config'
-    prompt_file_key = 'prompt.txt'
-    config_file_key = 'config.json'
+    bucket_name = os.environ.get("BUCKET_NAME") 
+    prompt_file_key = os.environ.get("PROMPT_FILE") 
+    config_file_key = os.environ.get("CONFIG_FILE") 
 
     try:
         s3_response_p = s3.get_object(Bucket=bucket_name, Key=prompt_file_key)
