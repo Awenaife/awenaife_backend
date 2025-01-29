@@ -39,6 +39,7 @@ jobs:
           aws lambda update-function-code \
             --function-name ${{ matrix.lambda.function_name }} \
             --zip-file fileb://${{ matrix.lambda.name }}.zip
+          sleep 20
           export $(grep -v '^#' .env | xargs)
           aws lambda update-function-configuration \
             --function-name ${{ matrix.lambda.function_name }} \
