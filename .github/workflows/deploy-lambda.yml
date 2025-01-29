@@ -39,7 +39,7 @@ jobs:
           export $(grep -v '^#' .env | xargs)
           aws lambda update-function-code \
             --function-name ${{ matrix.lambda.function_name }} \
-            --environment "Variables={BUCKET_NAME=${BUCKET_NAME},PROMPT_FILE=${PROMPT_FILE},CONFIG_FILE=${CONFIG_FILE}}" \
+            --environment "Variables={BUCKET_NAME=\"$BUCKET_NAME\", PROMPT_FILE=\"$PROMPT_FILE\", CONFIG_FILE=\"$CONFIG_FILE\"}" \
             --zip-file fileb://${{ matrix.lambda.name }}.zip
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
